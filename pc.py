@@ -20,7 +20,7 @@ def on_message(client, userdata, msg):
     print(f"📩 Nhận tin nhắn: {msg.topic} → {msg.payload.decode()}")
 
 # Tạo MQTT client
-client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)  # Dùng phiên bản callback API 1
+client = mqtt.Client()  # Dùng phiên bản callback API 1
 
 # Thiết lập username & password
 client.username_pw_set(username, password)
