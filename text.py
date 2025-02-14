@@ -1,99 +1,62 @@
-#!/usr/bin/env python3
-import time
-from time import sleep
-import os
-from threading import Timer
-import subprocess
-import json
 import paho.mqtt.client as mqtt
-import paho.mqtt.publish as publish
-import url
-import khaibao
-import requests
-import socket
-import configparser
-# import signal
-# import psutil
-# import alsaaudio
-# import pyaudio
+import time
+import uuid
 
-from threading  import Thread
-from datetime import datetime, timezone
+# Thông tin MQTT
+domainMqtt = "mqtt.gtechdn.vn"
+portMqtt = 1883
+username = "mqtt"
+password = "your_password"
+client_id = f"device-{uuid.uuid4().hex[:6]}"  # Client ID ngẫu nhiên tránh trùng lặp
 
+# Tạo client
+client = mqtt.Client(client_id=client_id)
+client.username_pw_set(username, password)
 
-# # Khởi tạo giờ, phút, giây ban đầu là 0
-# REMOTE_SERVER = "8.8.8.8"
-# hour = 0
-# minute = 0
-# second = 0
-# darkice_process = ''
-# darkice_cmd = ['darkice', '-c', '/etc/darkice.cfg']
-# # Đường dẫn đến tệp cấu hình của Darkice
-# CONFIG_FILE = "/etc/darkice.cfg"
-# # Tạo đối tượng ConfigParser
-# config = configparser.ConfigParser()
-# config.optionxform = lambda option: option
-
-######### khai bao domain ##########
-domainMqtt = url.domainMqtt
-portMqtt = url.portMqtt
-domainXacnhanketnoi = url.domainXacnhanketnoi
-domainLogbantin = url.domainLogbantin
-domainPing = url.domainPing
-domainXacnhanketnoilai = url.domainXacnhanketnoilai
-domainStartStream = url.domainStartStream
-
-def api_xacnhanketnoi(data):
-  global trangthaiguiApi, userName, password, domainLoginTinh, domainPingTinh, domainLogTinh, imel, tenthietbi, madiaban, tendiaban, lat, lng, Status, Video, khoaguidulieu
-  try:
-    responsePingtest = requests.post(domainXacnhanketnoi, json = data)
-    jsonResponse = responsePingtest.json()
-    if jsonResponse.get('success', False):
-        print("Đã nhận dữ liệu từ API")
-        # config.read(CONFIG_FILE)
+# Callback khi kết nối
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print(f"Kết nối thành công tới {domainMqtt} với Client ID: {client_id}")
+        client.subscribe("device/status")
     else:
-        print("Không thành công trong việc nhận dữ liệu")
-    # if(jsonResponse['success'] == True):
-    #   print("đã nhận")
-      # dieu khien volume #
-    #   setVolume(jsonResponse['data']['data']['volume'])
-       # Đọc nội dung của tệp cấu hình
-    #   config.read(CONFIG_FILE)
+        print(f"Lỗi kết nối, mã lỗi: {rc}")
 
-    #   -----------------------------
-    # Kiểm tra nếu tệp đã được đọc
-    # if len(config.read(CONFIG_FILE)) == 0:
-    #     print("Không thể đọc tệp cấu hình hoặc tệp không tồn tại!")
-    # else:
-    #     print("Đã đọc tệp cấu hình!")
+# Callback khi mất kết nối
+def on_disconnect(client, userdata, rc):
+    print(f"Mất kết nối. Mã lỗi: {rc}")
+    if rc != 0:
+        print("Thử kết nối lại sau 5 giây...")
+        time.sleep(5)
+        try_reconnect(client)
 
-    # # In toàn bộ nội dung của tệp
-    # for section in config.sections():
-    #     print(f"[{section}]")
-    #     for key, value in config.items(section):
-    #         print(f"{key} = {value}")
-    #     print()
-    # ------------------------------
-      # Thay đổi giá trị input
-    #   config.set("input", "device", jsonResponse['data']['data']['deviceinput'])
-    #   config.set("input", "channel", jsonResponse['data']['data']['channel'])
-    #   config.set("icecast2-0", "bitrate", jsonResponse['data']['data']['bitrate'])
-    #   config.set("icecast2-0", "server", jsonResponse['data']['data']['serverstream'])
-    #   config.set("icecast2-0", "port", jsonResponse['data']['data']['portstream'])
-    #   config.set("icecast2-0", "password", jsonResponse['data']['data']['password'])
-    #   config.set("icecast2-0", "name", jsonResponse['data']['data']['nameStream'])
-    #   config.set("icecast2-0", "mountPoint", jsonResponse['data']['data']['mountPoint'])
-      # Ghi lại nội dung vào tệp cấu hình
-    #   with open(CONFIG_FILE, "w") as configfile:
-    #     config.write(configfile)
-      # dieu khien play #
-    #   if(jsonResponse['data']['data']['statusPlay'] == 'play'):   
-    #     if(jsonResponse['data']['data']['deviceId'] == id):  
-    #      for proc in subprocess.Popen(['pgrep', '-f', 'darkice'], stdout=subprocess.PIPE).stdout:
-    #         pid = int(proc.decode())
-    #         os.kill(pid, signal.SIGTERM)   
-    #      start_darkice() 
-    #   else:
-    #     stop_darkice()
-  except:
-    print('loi xac nhan ket noi')
+# Hàm thử kết nối lại
+def try_reconnect(client):
+    for i in range(3):
+        try:
+            print(f"Thử kết nối lại ({i+1}/3)...")
+            client.reconnect()
+            return
+        except Exception as e:
+            print(f"Lỗi kết nối lại: {e}")
+        time.sleep(5)
+    print("Không thể kết nối lại, dừng chương trình.")
+
+# Callback khi nhận tin nhắn
+def on_message(client, userdata, msg):
+    print(f"Nhận tin nhắn từ {msg.topic}: {msg.payload.decode()}")
+
+# Gán callback
+client.on_connect = on_connect
+client.on_disconnect = on_disconnect
+client.on_message = on_message
+
+# Kết nối
+try:
+    print(f"Đang kết nối tới broker {domainMqtt} với user: {username}")
+    client.connect(domainMqtt, portMqtt, 60)
+except Exception as e:
+    print(f"Lỗi kết nối ban đầu: {e}")
+    exit()
+
+# Bắt đầu vòng lặp
+client.loop_forever()

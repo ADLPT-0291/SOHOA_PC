@@ -9,7 +9,7 @@ username = "mqtt"  # Tên đăng nhập MQTT
 password = "adminmqtt"  # Mật khẩu MQTT
 
 # Biến trạng thái kết nối
-client = mqtt.Client(client_id=id)  # Khởi tạo MQTT Client với ID thiết bị
+client = mqtt.Client()  # Khởi tạo MQTT Client với ID thiết bị
 client.username_pw_set(username, password)  # Thiết lập user và password
 client.retry_count = 0  # Số lần thử kết nối
 client.connected_flag = False  # Cờ kết nối
