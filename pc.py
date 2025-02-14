@@ -50,7 +50,7 @@ def api_xacnhanketnoi(data):
     jsonResponse = responsePingtest.json()
     if jsonResponse.get('success', False):
         print("Đã nhận dữ liệu từ API")
-        config.read(CONFIG_FILE)
+        # config.read(CONFIG_FILE)
     else:
         print("Không thành công trong việc nhận dữ liệu")
     # if(jsonResponse['success'] == True):
@@ -62,17 +62,17 @@ def api_xacnhanketnoi(data):
 
     #   -----------------------------
     # Kiểm tra nếu tệp đã được đọc
-    if len(config.read(CONFIG_FILE)) == 0:
-        print("Không thể đọc tệp cấu hình hoặc tệp không tồn tại!")
-    else:
-        print("Đã đọc tệp cấu hình!")
+    # if len(config.read(CONFIG_FILE)) == 0:
+    #     print("Không thể đọc tệp cấu hình hoặc tệp không tồn tại!")
+    # else:
+    #     print("Đã đọc tệp cấu hình!")
 
-    # In toàn bộ nội dung của tệp
-    for section in config.sections():
-        print(f"[{section}]")
-        for key, value in config.items(section):
-            print(f"{key} = {value}")
-        print()
+    # # In toàn bộ nội dung của tệp
+    # for section in config.sections():
+    #     print(f"[{section}]")
+    #     for key, value in config.items(section):
+    #         print(f"{key} = {value}")
+    #     print()
     # ------------------------------
       # Thay đổi giá trị input
     #   config.set("input", "device", jsonResponse['data']['data']['deviceinput'])
