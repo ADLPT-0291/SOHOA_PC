@@ -1,0 +1,9 @@
+domainPing = "https://ping.gtechdn.vn/ping"
+domainLogbantin = "https://ping.gtechdn.vn/logbantin"
+domainXacnhanketnoi = "https://ping.gtechdn.vn/xacnhanketnoi"
+domainXacnhanketnoilai = "https://ping.gtechdn.vn/xacnhanketnoi/xacnhanketnoilai"
+domainStartStream = "https://ping.gtechdn.vn/start-stream"
+domainMqtt = "mqtt.gtechdn.vn"
+portMqtt = 1883
+username_mqtt = 'mqtt'
+password_mqtt = 'adminmqtt'
