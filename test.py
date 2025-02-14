@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from oled.device import ssd1306, sh1106
-from oled.render import canvas
-from PIL import ImageFont, ImageDraw, Image
-from pyA20.gpio import gpio
-from pyA20.gpio import port
+# from oled.device import ssd1306, sh1106
+# from oled.render import canvas
+# from PIL import ImageFont, ImageDraw, Image
+# from pyA20.gpio import gpio
+# from pyA20.gpio import port
 import time
 from time import sleep
 import os
@@ -27,16 +27,16 @@ import pyaudio
 from threading  import Thread
 from datetime import datetime, timezone
 
-gpio.init()
+# gpio.init()
 
-led_status = 16 #chan 16
-watchdog = 13 # chan 13
-led_connect = 15 # chan 11
-kich_modul4g = 14 # chan 18
-phim_wifi = 3
-on_off = 0 # chan 50
-up = 1 #chan 51
-down = 2 #chan 52
+# led_status = 16 #chan 16
+# watchdog = 13 # chan 13
+# led_connect = 15 # chan 11
+# kich_modul4g = 14 # chan 18
+# phim_wifi = 3
+# on_off = 0 # chan 50
+# up = 1 #chan 51
+# down = 2 #chan 52
 
 prev_on_off = False
 prev_up = False
@@ -51,29 +51,29 @@ step = 5
 # Tạo terminal ảo và chạy darkice trong đó
 
 #kich_nguon_sac = 16 # chan 18
-gpio.setcfg(led_status, gpio.OUTPUT)
-gpio.setcfg(watchdog, gpio.OUTPUT)
-gpio.setcfg(led_connect, gpio.OUTPUT)
-gpio.setcfg(kich_modul4g, gpio.OUTPUT)
-gpio.setcfg(phim_wifi, gpio.INPUT)   #Configure PE11 as input
-gpio.setcfg(on_off, gpio.INPUT)   #Configure PE11 as input
-gpio.setcfg(up, gpio.INPUT)   #Configure PE11 as input
-gpio.setcfg(down, gpio.INPUT)   #Configure PE11 as input
+# gpio.setcfg(led_status, gpio.OUTPUT)
+# gpio.setcfg(watchdog, gpio.OUTPUT)
+# gpio.setcfg(led_connect, gpio.OUTPUT)
+# gpio.setcfg(kich_modul4g, gpio.OUTPUT)
+# gpio.setcfg(phim_wifi, gpio.INPUT)   #Configure PE11 as input
+# gpio.setcfg(on_off, gpio.INPUT)   #Configure PE11 as input
+# gpio.setcfg(up, gpio.INPUT)   #Configure PE11 as input
+# gpio.setcfg(down, gpio.INPUT)   #Configure PE11 as input
 
-gpio.pullup(down, gpio.PULLDOWN)    #Enable pull-down
-gpio.pullup(up, gpio.PULLDOWN)    #Enable pull-down
-gpio.pullup(phim_wifi, gpio.PULLDOWN)    #Enable pull-down
-gpio.pullup(on_off, gpio.PULLDOWN)    #Enable pull-down
-gpio.output(kich_modul4g, 1)
-gpio.output(watchdog, 0)
+# gpio.pullup(down, gpio.PULLDOWN)    #Enable pull-down
+# gpio.pullup(up, gpio.PULLDOWN)    #Enable pull-down
+# gpio.pullup(phim_wifi, gpio.PULLDOWN)    #Enable pull-down
+# gpio.pullup(on_off, gpio.PULLDOWN)    #Enable pull-down
+# gpio.output(kich_modul4g, 1)
+# gpio.output(watchdog, 0)
 
 
 # Tạo đối tượng màn hình OLED
-device = ssd1306(port=0, address=0x3C)
-width = device.width
-height = device.height
-image = Image.new("1", (width, height))
-draw = ImageDraw.Draw(image)
+# device = ssd1306(port=0, address=0x3C)
+# width = device.width
+# height = device.height
+# image = Image.new("1", (width, height))
+# draw = ImageDraw.Draw(image)
 # Khởi tạo giờ, phút, giây ban đầu là 0
 REMOTE_SERVER = "8.8.8.8"
 hour = 0
