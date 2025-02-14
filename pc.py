@@ -22,6 +22,9 @@ def api_xacnhanketnoi(data):
         # Gửi yêu cầu POST đến server
         responsePingtest = requests.post(domainXacnhanketnoi, json=data)
         
+        # In mã trạng thái HTTP và phản hồi từ server
+        print(f"Mã trạng thái HTTP: {responsePingtest.status_code}")
+        
         # Kiểm tra nếu yêu cầu thành công
         if responsePingtest.status_code == 200:
             print("Yêu cầu thành công! Phản hồi từ server:")
