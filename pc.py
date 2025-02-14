@@ -1,72 +1,62 @@
-import paho.mqtt.client as mqtt
+#
+# Copyright 2021 HiveMQ GmbH
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 import time
+import paho.mqtt.client as paho
+from paho import mqtt
 
-# Thông tin kết nối MQTT
-domainMqtt = "mqtt.gtechdn.vn"  # Địa chỉ broker MQTT (thay bằng địa chỉ thực tế)
-portMqtt = 1883  # Cổng MQTT (thường là 1883 cho MQTT không mã hóa)
-id = "646ada9d1f271419db8b124e"  # ID thiết bị (thay bằng ID thực tế của bạn)
-username = "mqtt"  # Tên đăng nhập MQTT
-password = "adminmqtt"  # Mật khẩu MQTT
+# setting callbacks for different events to see if it works, print the message etc.
+def on_connect(client, userdata, flags, rc, properties=None):
+    print("CONNACK received with code %s." % rc)
 
-# Biến trạng thái kết nối
-client = mqtt.Client()  # Khởi tạo MQTT Client với ID thiết bị
-client.username_pw_set(username, password)  # Thiết lập user và password
-client.retry_count = 0  # Số lần thử kết nối
-client.connected_flag = False  # Cờ kết nối
+# with this callback you can see if your publish was successful
+def on_publish(client, userdata, mid, properties=None):
+    print("mid: " + str(mid))
 
-# Hàm callback khi kết nối thành công
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print("Kết nối thành công tới broker")
-        client.connected_flag = True  # Đánh dấu kết nối thành công
-    else:
-        print("Kết nối thất bại. Mã lỗi:", rc)
+# print which topic was subscribed to
+def on_subscribe(client, userdata, mid, granted_qos, properties=None):
+    print("Subscribed: " + str(mid) + " " + str(granted_qos))
 
-# Hàm callback khi mất kết nối
-def on_disconnect(client, userdata, rc):
-    print("Mất kết nối. Mã lỗi:", rc)
-
-# Hàm callback khi nhận tin nhắn
+# print message, useful for checking if it was successful
 def on_message(client, userdata, msg):
-    print("Nhận tin nhắn từ chủ đề:", msg.topic)
-    print("Nội dung tin nhắn:", msg.payload.decode())
+    print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
 
-# Đăng ký các callback
+# using MQTT version 5 here, for 3.1.1: MQTTv311, 3.1: MQTTv31
+# userdata is user defined data of any type, updated by user_data_set()
+# client_id is the given name of the client
+client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
 client.on_connect = on_connect
-# client.on_disconnect = on_disconnect
+
+# enable TLS for secure connection
+client.tls_set(tls_version=mqtt.client.ssl.PROTOCOL_TLS)
+# set username and password
+client.username_pw_set("gtechdn", "gtechdn")
+# connect to HiveMQ Cloud on port 8883 (default for MQTT)
+client.connect("ca99add77b634afe8e68917f0339aec6.s1.eu.hivemq.cloud", 8883)
+
+# setting callbacks, use separate functions like above for better visibility
+client.on_subscribe = on_subscribe
 client.on_message = on_message
+client.on_publish = on_publish
 
-# Lệnh "will" để gửi thông báo nếu thiết bị mất kết nối
-client.will_set("device/offline", payload=id, qos=1, retain=False)
+# subscribe to all topics of encyclopedia by using the wildcard "#"
+client.subscribe("encyclopedia/#", qos=1)
 
-# Thử kết nối tới broker MQTT tối đa 3 lần
-while not client.connected_flag and client.retry_count < 3:
-    try:
-        print(f"Đang kết nối tới broker {domainMqtt} với user: {username}")
-        client.connect(domainMqtt, portMqtt, 60)  # Kết nối tới broker
-        break  # Nếu kết nối thành công, thoát vòng lặp
-    except Exception as e:
-        print("Kết nối không thành công, thử lại:", e)
-        client.retry_count += 1
-        if client.retry_count == 3:
-            print("Không thể kết nối tới broker sau 3 lần thử")
-            break
-        time.sleep(5)  # Chờ 5 giây trước khi thử lại
+# a single publish, this can also be done in loops, etc.
+client.publish("encyclopedia/temperature", payload="hot", qos=1)
 
-# Nếu kết nối thành công, bắt đầu vòng lặp để nhận tin nhắn
-if client.connected_flag:
-    client.loop_start()  # Bắt đầu lắng nghe MQTT
-
-    # Đăng ký chủ đề cần theo dõi
-    client.subscribe("device/status")  # Thay "device/status" bằng chủ đề thực tế
-
-    # Vòng lặp chính để duy trì kết nối
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("Ngừng chương trình")
-        client.loop_stop()  # Dừng vòng lặp MQTT
-
-# Đóng kết nối MQTT khi chương trình kết thúc
-client.disconnect()
+# loop_forever for simplicity, here you need to stop the loop manually
+# you can also use loop_start and loop_stop
+client.loop_forever()
