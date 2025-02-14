@@ -1,11 +1,13 @@
 from paho.mqtt import client as mqtt  # type: ignore
 
-led_status = 16
+led_status = 123
 
-port = 8883  # Cổng TLS
-broker = "ca99add77b634afe8e68917f0339aec6.s1.eu.hivemq.cloud"
-username = "gtechdn"
-password = "Kontum12@"
+# port = 8883  # Cổng TLS
+port = 1883  # Cổng TLS
+# broker = "ca99add77b634afe8e68917f0339aec6.s1.eu.hivemq.cloud"
+broker = "mqtt.gtechdn.vn"
+username = "mqtt"
+password = "adminmqtt"
 
 topic = "gtechdn/sohoa_pc"
 
@@ -34,7 +36,7 @@ client.on_message = on_message
 
 # Kết nối tới broker
 try:
-    client.connect(broker, port)
+    client.connect(broker, port,60)
     print("🔗 Đang kết nối tới broker...")
 except Exception as e:
     print(f"❌ Lỗi kết nối: {e}")
