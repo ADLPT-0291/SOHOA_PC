@@ -1,7 +1,7 @@
 from paho.mqtt import client as mqtt # type: ignore
 import time
 import ssl
-
+led_status = 16
 
 port= 8883
 broker = "ca99add77b634afe8e68917f0339aec6.s1.eu.hivemq.cloud"
@@ -14,3 +14,7 @@ topic = "gtechdn/sohoa_pc"
 client=mqtt.Client()
 client.connect(broker, port)
 print("Connected to the HIVEMQ Broker")
+
+
+client.publish(topic,led_status)
+print("show led_status")
