@@ -33,7 +33,7 @@ def on_message(client, userdata, msg):
 
 # Đăng ký các callback
 client.on_connect = on_connect
-client.on_disconnect = on_disconnect
+# client.on_disconnect = on_disconnect
 client.on_message = on_message
 
 # Lệnh "will" để gửi thông báo nếu thiết bị mất kết nối
