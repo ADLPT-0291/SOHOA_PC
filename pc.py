@@ -2,9 +2,9 @@ from paho.mqtt import client as mqtt  # type: ignore
 
 led_status = 123
 
-# port = 8883  # Cổng TLS
-port = 1883  # Cổng TLS
-# broker = "ca99add77b634afe8e68917f0339aec6.s1.eu.hivemq.cloud"
+port = 8883  # Cổng TLS
+# port = 1883  # Cổng TLS
+broker = "ca99add77b634afe8e68917f0339aec6.s1.eu.hivemq.cloud"
 broker = "mqtt.gtechdn.vn"
 username = "mqtt"
 password = "adminmqtt"
@@ -27,8 +27,10 @@ client = mqtt.Client()  # Dùng phiên bản callback API 1
 # Thiết lập username & password
 client.username_pw_set(username, password)
 
+
 # Kích hoạt TLS (SSL) để kết nối an toàn
-client.tls_set()
+client.tls_set(cert_reqs=mqtt.ssl.CERT_NONE)  # Không kiểm tra chứng chỉ
+
 
 # Đăng ký callback
 client.on_connect = on_connect
