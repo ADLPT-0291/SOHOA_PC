@@ -15,6 +15,6 @@ client=mqtt.Client()
 client.connect(broker, port)
 print("Connected to the HIVEMQ Broker")
 
-
-client.publish(topic,led_status)
+client.subscribe(topic, qos=1)
+client.publish(topic,led_status,qos=1)
 print("show led_status")
