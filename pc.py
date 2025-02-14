@@ -15,6 +15,8 @@ domainPing = url.domainPing
 domainXacnhanketnoilai = url.domainXacnhanketnoilai
 domainStartStream = url.domainStartStream
 
+print("oke")
+
 def api_xacnhanketnoi(data):
     try:
         # Gửi yêu cầu POST đến server
