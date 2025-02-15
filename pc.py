@@ -1,40 +1,50 @@
 import paho.mqtt.client as mqtt
 import time
+import threading
 
 # Cấu hình MQTT Broker
-MQTT_BROKER = "mqtt.gtechdn.vn"  # Thay bằng địa chỉ broker của bạn
+MQTT_BROKER = "mqtt.gtechdn.vn"
 MQTT_PORT = 1883
 MQTT_KEEPALIVE = 60
-MQTT_TOPIC_SUBSCRIBE = "device/control"  # Chủ đề nhận lệnh
-MQTT_TOPIC_PUBLISH = "device/status"  # Chủ đề gửi trạng thái
+MQTT_TOPIC_SUBSCRIBE = "device/control"
+MQTT_TOPIC_PUBLISH = "device/status"
 
 # Biến kiểm soát kết nối
 is_connected = False
 
 def on_connect(client, userdata, flags, rc):
+    """Hàm xử lý khi kết nối thành công"""
     global is_connected
     if rc == 0:
-        print("Kết nối MQTT thành công!")
+        print("✅ Kết nối MQTT thành công!")
         is_connected = True
         client.subscribe(MQTT_TOPIC_SUBSCRIBE)
     else:
-        print(f"Lỗi kết nối MQTT, mã lỗi: {rc}")
+        print(f"⚠️ Lỗi kết nối MQTT, mã lỗi: {rc}")
 
 def on_disconnect(client, userdata, rc):
+    """Hàm xử lý khi mất kết nối"""
     global is_connected
-    print("Mất kết nối MQTT, thử kết nối lại...")
     is_connected = False
+    print("🔴 Mất kết nối MQTT. Đang thử kết nối lại...")
     while not is_connected:
         try:
             client.reconnect()
-            time.sleep(5)
+            time.sleep(5)  # Chờ trước khi thử lại
         except Exception as e:
-            print("Lỗi kết nối lại MQTT:", str(e))
+            print("❌ Lỗi kết nối lại MQTT:", str(e))
             time.sleep(5)
 
 def on_message(client, userdata, msg):
-    print(f"Nhận lệnh từ MQTT: {msg.topic} - {msg.payload.decode()}")
-    # Xử lý nội dung tin nhắn tại đây
+    """Hàm xử lý khi nhận được tin nhắn"""
+    print(f"📩 Nhận lệnh từ MQTT: {msg.topic} - {msg.payload.decode()}")
+
+def publish_status():
+    """Hàm gửi trạng thái thiết bị định kỳ"""
+    while True:
+        if is_connected:
+            client.publish(MQTT_TOPIC_PUBLISH, "Thiết bị hoạt động bình thường")
+        time.sleep(10)  # Gửi mỗi 10 giây
 
 # Tạo client MQTT
 client = mqtt.Client()
@@ -46,13 +56,12 @@ client.on_message = on_message
 try:
     client.connect(MQTT_BROKER, MQTT_PORT, MQTT_KEEPALIVE)
 except Exception as e:
-    print("Lỗi kết nối MQTT:", str(e))
+    print("❌ Lỗi kết nối MQTT:", str(e))
+    exit(1)
 
-# Chạy vòng lặp để duy trì kết nối
-client.loop_start()
+# Chạy luồng gửi trạng thái riêng để không chặn luồng chính
+status_thread = threading.Thread(target=publish_status, daemon=True)
+status_thread.start()
 
-# Gửi trạng thái định kỳ
-while True:
-    if is_connected:
-        client.publish(MQTT_TOPIC_PUBLISH, "Thiết bị hoạt động bình thường")
-    time.sleep(10)
+# Chạy vòng lặp chính để duy trì kết nối MQTT
+client.loop_forever()
