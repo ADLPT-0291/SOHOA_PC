@@ -1,52 +1,58 @@
-from paho.mqtt import client as mqtt  # type: ignore
+import paho.mqtt.client as mqtt
+import time
 
-led_status = 123
+# Cấu hình MQTT Broker
+MQTT_BROKER = "mqtt.gtechdn.vn"  # Thay bằng địa chỉ broker của bạn
+MQTT_PORT = 1883
+MQTT_KEEPALIVE = 60
+MQTT_TOPIC_SUBSCRIBE = "device/control"  # Chủ đề nhận lệnh
+MQTT_TOPIC_PUBLISH = "device/status"  # Chủ đề gửi trạng thái
 
-# port = 8883  # Cổng TLS
-port = 1883  # Cổng TLS
-# broker = "ca99add77b634afe8e68917f0339aec6.s1.eu.hivemq.cloud"
-broker = "mqtt.gtechdn.vn"
-# username = "gtechdn"
-# password = "Kontum12@"
-
-topic = "device/offline"
+# Biến kiểm soát kết nối
+is_connected = False
 
 def on_connect(client, userdata, flags, rc):
+    global is_connected
     if rc == 0:
-        print("✅ Kết nối thành công tới MQTT Broker!")
-        client.subscribe(topic, qos=1)
+        print("Kết nối MQTT thành công!")
+        is_connected = True
+        client.subscribe(MQTT_TOPIC_SUBSCRIBE)
     else:
-        print(f"⚠ Kết nối thất bại, mã lỗi: {rc}")
+        print(f"Lỗi kết nối MQTT, mã lỗi: {rc}")
+
+def on_disconnect(client, userdata, rc):
+    global is_connected
+    print("Mất kết nối MQTT, thử kết nối lại...")
+    is_connected = False
+    while not is_connected:
+        try:
+            client.reconnect()
+            time.sleep(5)
+        except Exception as e:
+            print("Lỗi kết nối lại MQTT:", str(e))
+            time.sleep(5)
 
 def on_message(client, userdata, msg):
-    print(f"📩 Nhận tin nhắn: {msg.topic} → {msg.payload.decode()}")
+    print(f"Nhận lệnh từ MQTT: {msg.topic} - {msg.payload.decode()}")
+    # Xử lý nội dung tin nhắn tại đây
 
-# Tạo MQTT client
-client = mqtt.Client()  # Dùng phiên bản callback API 1
-
-# Thiết lập username & password
-# client.username_pw_set(username, password)
-
-
-# Kích hoạt TLS (SSL) để kết nối an toàn
-client.tls_set(cert_reqs=mqtt.ssl.CERT_NONE)  # Không kiểm tra chứng chỉ
-
-
-# Đăng ký callback
+# Tạo client MQTT
+client = mqtt.Client()
 client.on_connect = on_connect
+client.on_disconnect = on_disconnect
 client.on_message = on_message
 
-# Kết nối tới broker
+# Kết nối MQTT Broker
 try:
-    client.connect(broker, port,60)
-    print("🔗 Đang kết nối tới broker...")
+    client.connect(MQTT_BROKER, MQTT_PORT, MQTT_KEEPALIVE)
 except Exception as e:
-    print(f"❌ Lỗi kết nối: {e}")
-    exit(1)
+    print("Lỗi kết nối MQTT:", str(e))
 
-# Gửi trạng thái LED
-client.publish(topic, str(led_status), qos=1)
-print(f"📤 Đã gửi tin nhắn: {led_status}")
+# Chạy vòng lặp để duy trì kết nối
+client.loop_start()
 
-# Duy trì kết nối để nhận tin nhắn
-client.loop_forever()
+# Gửi trạng thái định kỳ
+while True:
+    if is_connected:
+        client.publish(MQTT_TOPIC_PUBLISH, "Thiết bị hoạt động bình thường")
+    time.sleep(10)
