@@ -61,10 +61,11 @@ config.optionxform = lambda option: option
 ################# ham dieu khien volume ####################
 def setVolume(volume):
   # Khởi tạo mixer
-  mixer = alsaaudio.Mixer('Mic1 Boost', cardindex=0)
+#   mixer = alsaaudio.Mixer('Mic1 Boost', cardindex=0)
+  print("oke đã qua hàm này")
   # Đặt âm lượng
-  mixer.setvolume(int(volume))
-  current_volume = mixer.getvolume()[0]
+#   mixer.setvolume(int(volume))
+#   current_volume = mixer.getvolume()[0]
 
 ############# ham call api xac nhan ket noi #################
 def api_xacnhanketnoi(data):
