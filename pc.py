@@ -67,6 +67,37 @@ def setVolume(volume):
 #   mixer.setvolume(int(volume))
 #   current_volume = mixer.getvolume()[0]
 
+def start_darkice():   
+    global trangthaiplay, led_status,playStream
+    # start darkice stream
+    subprocess.Popen(['sudo darkice'])
+    time.sleep(1)
+    # if get_darkice_status_ping():
+    #   playStream = 1
+    #   showStream.start()
+    #   time.sleep(0.5) 
+    #   countTime.start()
+    #   client.publish(trangthaiplay,"play")
+
+
+def stop_darkice():
+    global last_start, playStream, trangthaiplay, led_status, second, minute, hour, start_time_str
+    # stop darkice stream
+    playStream = 0
+    client.publish(trangthaiplay,"stop")
+    # countTime.stop()
+    # last_start = False
+    # time.sleep(0.5) 
+    # start_time_str = ''
+    # second = 0
+    # minute = 0
+    # hour = 0
+    # for proc in subprocess.Popen(['pgrep', '-f', 'darkice'], stdout=subprocess.PIPE).stdout:
+    #     pid = int(proc.decode())
+    #     os.kill(pid, signal.SIGTERM)
+
+
+
 ############# ham call api xac nhan ket noi #################
 def api_xacnhanketnoi(data):
   global trangthaiguiApi, userName, password, domainLoginTinh, domainPingTinh, domainLogTinh, imel, tenthietbi, madiaban, tendiaban, lat, lng, Status, Video, khoaguidulieu
@@ -97,10 +128,10 @@ def api_xacnhanketnoi(data):
          for proc in subprocess.Popen(['pgrep', '-f', 'darkice'], stdout=subprocess.PIPE).stdout:
             pid = int(proc.decode())
             os.kill(pid, signal.SIGTERM)   
-        #  start_darkice() 
+         start_darkice() 
         print("start_darkice")
       else:
-        # stop_darkice()
+        stop_darkice()
         print("stop_darkice")
     else:
         print("⚠️ Lỗi từ server:", jsonResponse)
