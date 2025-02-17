@@ -104,12 +104,14 @@ def api_xacnhanketnoi(data):
     #   else:
     #     # stop_darkice()
     #     print("stop_darkice")
-  except:
-    print('loi xac nhan ket noi')
+#   except:
+#     print('loi xac nhan ket noi')
   except requests.exceptions.RequestException as e:
-    print("❌ Lỗi kết nối API:", e)
+        print("❌ Lỗi kết nối API:", e)
   except ValueError:
-    print("⚠️ Phản hồi không phải JSON hợp lệ!")
+        print("⚠️ Phản hồi không phải JSON hợp lệ!")
+  except Exception as e:
+        print("❌ Lỗi không xác định:", e)
 
 
 
