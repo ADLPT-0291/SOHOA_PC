@@ -91,7 +91,7 @@ def api_xacnhanketnoi(data):
       # Ghi lại nội dung vào tệp cấu hình
       with open(CONFIG_FILE, "w") as configfile:
         config.write(configfile)
-    #     print("\n📜 Nội dung file CONFIG_FILE:\n" + "="*40)
+        print("\n📜 Nội dung file CONFIG_FILE:\n" + "="*40)
     #     with open(CONFIG_FILE, "r") as configfile:
     #         print(configfile.read())  # Đọc và in nội dung file cấu hình
     #     print("="*40)
