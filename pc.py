@@ -10,6 +10,7 @@ import configparser
 import alsaaudio
 import os
 import signal
+import json
 
 # Cấu hình MQTT Broker
 MQTT_TOPIC_SUBSCRIBE = "device/control"
@@ -196,7 +197,82 @@ def on_disconnect(client, userdata, rc):
 def on_message(client, userdata, msg):
     """Hàm xử lý khi nhận được tin nhắn"""
     print(f"📩 Nhận lệnh từ MQTT: {msg.topic} - {msg.payload.decode()}")
-
+    global playStream, darkice_process,  kiemtraPlay, updatecode, dieukhienvolume, dieukhienplay, demKiemtra, guidulieu, yeucauguidulieu, userName, password, domainPing, imel, tenthietbi, madiaban, tendiaban, lat, lng, Status, Video, khoaguidulieu
+    themsg = msg.payload.decode("utf-8")
+    topic = msg.topic
+    #### nhan lenh tu server ####
+    #### update code ####
+    if topic == updatecode:
+      print('update oke')
+    #   try:
+    #     data = themsg.split() 
+    #     if data[0] == id:
+    #       os.system("(cd /home/dung/sohoa_oled && git pull https://phamdung1211:'"+ data[1] + "'@bitbucket.org/phamdung1211/sohoa_oled.git && sudo reboot)")
+    #   except:
+    #     print('loi')
+    #### khoi dong lai thiet bi ####
+    if topic == reset:
+      print('reset oke')
+    #   if themsg == id:
+    #     os.system("(sudo reboot)")
+    #### dieu chinh am luong ####
+    if topic == dieukhienvolume:
+       print('chinh am luong oke')
+    #    try:
+    #     data = json.loads(themsg)
+    #     if data['deviceId'] == id:
+    #       setVolume(data['volume'])
+    #    except:
+    #     print('loi')
+    #### play ban tin  ####
+    if topic == dieukhienplay: 
+      try:
+        data = json.loads(themsg)  
+        if data['status'] == "updateconfig":
+          if data['deviceId'] ==  id:
+            # Đọc nội dung của tệp cấu hình
+            config.read(CONFIG_FILE)
+            # Thay đổi giá trị input
+            config.set("input", "device", data['deviceinput'])
+            config.set("input", "channel", data['channel'])
+            config.set("icecast2-0", "bitrate", data['bitrate'])
+            config.set("icecast2-0", "server", data['serverstream'])
+            config.set("icecast2-0", "port", data['portstream'])
+            config.set("icecast2-0", "password", data['password'])
+            config.set("icecast2-0", "name", data['nameStream'])
+            config.set("icecast2-0", "mountPoint", data['mountPoint'])
+            if(data['statusstream'] == True):
+              stop_darkice()
+            # Ghi lại nội dung vào tệp cấu hình
+            with open(CONFIG_FILE, "w") as configfile:
+              config.write(configfile)
+            if(data['statusstream'] == True):
+              start_darkice()
+        if data['status'] == "play":
+          if data['deviceId'] ==  id:     
+             playStream = 1      
+             start_darkice()         
+        # #### stop luong ####
+        if data['status'] == "stop":
+          if data['deviceId'] == id:
+            playStream = 0
+            stop_darkice()
+      except:
+        print('loi')
+    ### gui log ban tin ve tinh ####
+    # if topic == yeucauguidulieu:
+    #   try:
+    #     data = json.loads(themsg) 
+    #     if(data['command'] == 'play'):
+    #       Video = {"Index":"0", "Time": data['Duration'], "MediaName": "", "AudioName": data['AudioName'], "Path": data['Path'], "Level": data['Level']}
+    #       if trangthaiguiApi:
+    #         api_nhatkybantinTinh(data)     
+    #     ##### console #########
+    #     if(data['command'] == 'console'):
+    #       if(data['id'] == id):
+    #         os.system(data['data'])
+    #   except:
+    #     print('loi')
 def publish_status():
     """Hàm gửi trạng thái thiết bị định kỳ"""
     while True:
