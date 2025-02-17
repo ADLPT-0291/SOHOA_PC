@@ -1,6 +1,8 @@
 import paho.mqtt.client as mqtt
 import time
 import threading
+import khaibao
+import socket
 
 # Cấu hình MQTT Broker
 MQTT_BROKER = "mqtt.gtechdn.vn"
@@ -12,13 +14,50 @@ MQTT_TOPIC_PUBLISH = "device/status"
 # Biến kiểm soát kết nối
 is_connected = False
 
+
+######## khai bao dia chi mqtt #####
+id = khaibao.id
+updatecode = khaibao.updatecode
+trangthaiketnoi = khaibao.trangthaiketnoi
+trangthaiplay = khaibao.trangthaiplay
+trangthaivolume = khaibao.trangthaivolume
+xacnhanketnoi = khaibao.xacnhanketnoi
+dieukhienvolume = khaibao.dieukhienvolume
+dieukhienplay = khaibao.dieukhienplay
+yeucauguidulieu = khaibao.yeucauguidulieu
+reset = khaibao.reset
+
+
+######### get dia chi ip ###################
+def get_ip_address():
+ ip_address = ''
+ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+ s.connect(("8.8.8.8",80))
+ ip_address = s.getsockname()[0]
+ s.close()
+ return ip_address
+
 def on_connect(client, userdata, flags, rc):
     """Hàm xử lý khi kết nối thành công"""
-    global is_connected
+    global is_connected, demLoicallApiPing, yeucauguidulieu, updatecode, dieukhienvolume, dieukhienplay, maxacthuc, chedoRetartModul3g, demRestartModul3g, demLoicallApiPing
     if rc == 0:
         print("✅ Kết nối MQTT thành công!")
         is_connected = True
         client.subscribe(MQTT_TOPIC_SUBSCRIBE)
+        demLoicallApiPing = 0
+        client.subscribe(dieukhienvolume) 
+        client.subscribe(updatecode)
+        client.subscribe(dieukhienplay)
+        client.subscribe(yeucauguidulieu)
+        client.subscribe(reset)
+        client.connected_flag=True
+        """ call API xac nhan ket noi """
+       # ip = requests.get('https://api.ipify.org').text
+        dataXacnhanketnoi = {
+          'xacnhanketnoi': xacnhanketnoi,
+          'ip': get_ip_address(),
+          'phienban': phienban,   
+        }
     else:
         print(f"⚠️ Lỗi kết nối MQTT, mã lỗi: {rc}")
 
