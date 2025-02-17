@@ -2,18 +2,31 @@ import paho.mqtt.client as mqtt
 import time
 import threading
 import khaibao
+import subprocess
 import socket
+import requests
+import url
+import configparser
+import alsaaudio
+import os
+import signal
 
 # Cấu hình MQTT Broker
-MQTT_BROKER = "mqtt.gtechdn.vn"
-MQTT_PORT = 1883
-MQTT_KEEPALIVE = 60
 MQTT_TOPIC_SUBSCRIBE = "device/control"
 MQTT_TOPIC_PUBLISH = "device/status"
 
 # Biến kiểm soát kết nối
 is_connected = False
 
+
+######### khai bao domain ##########
+domainMqtt = url.domainMqtt
+portMqtt = url.portMqtt
+domainXacnhanketnoi = url.domainXacnhanketnoi
+domainLogbantin = url.domainLogbantin
+domainPing = url.domainPing
+domainXacnhanketnoilai = url.domainXacnhanketnoilai
+domainStartStream = url.domainStartStream
 
 ######## khai bao dia chi mqtt #####
 id = khaibao.id
@@ -29,6 +42,67 @@ reset = khaibao.reset
 
 ####################################
 phienban = "V1.0.0"
+
+
+# Khởi tạo giờ, phút, giây ban đầu là 0
+REMOTE_SERVER = "8.8.8.8"
+hour = 0
+minute = 0
+second = 0
+darkice_process = ''
+darkice_cmd = ['darkice', '-c', '/etc/darkice.cfg']
+# Đường dẫn đến tệp cấu hình của Darkice
+CONFIG_FILE = "/etc/darkice.cfg"
+# Tạo đối tượng ConfigParser
+config = configparser.ConfigParser()
+config.optionxform = lambda option: option
+
+
+################# ham dieu khien volume ####################
+def setVolume(volume):
+  # Khởi tạo mixer
+  mixer = alsaaudio.Mixer('Mic1 Boost', cardindex=0)
+  # Đặt âm lượng
+  mixer.setvolume(int(volume))
+  current_volume = mixer.getvolume()[0]
+
+############# ham call api xac nhan ket noi #################
+def api_xacnhanketnoi(data):
+  global trangthaiguiApi, userName, password, domainLoginTinh, domainPingTinh, domainLogTinh, imel, tenthietbi, madiaban, tendiaban, lat, lng, Status, Video, khoaguidulieu
+  try:
+    responsePingtest = requests.post(domainXacnhanketnoi, json = data)
+    jsonResponse = responsePingtest.json()
+    if(jsonResponse['success'] == True):
+      # dieu khien volume #
+      setVolume(jsonResponse['data']['data']['volume'])
+       # Đọc nội dung của tệp cấu hình
+      config.read(CONFIG_FILE)
+      # Thay đổi giá trị input
+      config.set("input", "device", jsonResponse['data']['data']['deviceinput'])
+      config.set("input", "channel", jsonResponse['data']['data']['channel'])
+      config.set("icecast2-0", "bitrate", jsonResponse['data']['data']['bitrate'])
+      config.set("icecast2-0", "server", jsonResponse['data']['data']['serverstream'])
+      config.set("icecast2-0", "port", jsonResponse['data']['data']['portstream'])
+      config.set("icecast2-0", "password", jsonResponse['data']['data']['password'])
+      config.set("icecast2-0", "name", jsonResponse['data']['data']['nameStream'])
+      config.set("icecast2-0", "mountPoint", jsonResponse['data']['data']['mountPoint'])
+      # Ghi lại nội dung vào tệp cấu hình
+      with open(CONFIG_FILE, "w") as configfile:
+        config.write(configfile)
+      # dieu khien play #
+      if(jsonResponse['data']['data']['statusPlay'] == 'play'):   
+        if(jsonResponse['data']['data']['deviceId'] == id):  
+         for proc in subprocess.Popen(['pgrep', '-f', 'darkice'], stdout=subprocess.PIPE).stdout:
+            pid = int(proc.decode())
+            os.kill(pid, signal.SIGTERM)   
+        #  start_darkice() 
+        print("start_darkice")
+      else:
+        # stop_darkice()
+        print("stop_darkice")
+  except:
+    print('loi xac nhan ket noi')
+
 
 
 ######### get dia chi ip ###################
@@ -61,6 +135,7 @@ def on_connect(client, userdata, flags, rc):
           'ip': get_ip_address(),
           'phienban': phienban,   
         }
+        api_xacnhanketnoi(dataXacnhanketnoi)
     else:
         print(f"⚠️ Lỗi kết nối MQTT, mã lỗi: {rc}")
 
@@ -96,7 +171,7 @@ client.on_message = on_message
 
 # Kết nối MQTT Broker
 try:
-    client.connect(MQTT_BROKER, MQTT_PORT, MQTT_KEEPALIVE)
+    client.connect(domainMqtt, portMqtt, 60)
 except Exception as e:
     print("❌ Lỗi kết nối MQTT:", str(e))
     exit(1)
