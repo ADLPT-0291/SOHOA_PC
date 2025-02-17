@@ -80,22 +80,22 @@ def api_xacnhanketnoi(data):
        # Đọc nội dung của tệp cấu hình
       config.read(CONFIG_FILE)
       # Thay đổi giá trị input
-    #   config.set("input", "device", jsonResponse['data']['data']['deviceinput'])
-    #   config.set("input", "channel", jsonResponse['data']['data']['channel'])
-    #   config.set("icecast2-0", "bitrate", jsonResponse['data']['data']['bitrate'])
-    #   config.set("icecast2-0", "server", jsonResponse['data']['data']['serverstream'])
-    #   config.set("icecast2-0", "port", jsonResponse['data']['data']['portstream'])
-    #   config.set("icecast2-0", "password", jsonResponse['data']['data']['password'])
-    #   config.set("icecast2-0", "name", jsonResponse['data']['data']['nameStream'])
-    #   config.set("icecast2-0", "mountPoint", jsonResponse['data']['data']['mountPoint'])
+      config.set("input", "device", jsonResponse['data']['data']['deviceinput'])
+      config.set("input", "channel", jsonResponse['data']['data']['channel'])
+      config.set("icecast2-0", "bitrate", jsonResponse['data']['data']['bitrate'])
+      config.set("icecast2-0", "server", jsonResponse['data']['data']['serverstream'])
+      config.set("icecast2-0", "port", jsonResponse['data']['data']['portstream'])
+      config.set("icecast2-0", "password", jsonResponse['data']['data']['password'])
+      config.set("icecast2-0", "name", jsonResponse['data']['data']['nameStream'])
+      config.set("icecast2-0", "mountPoint", jsonResponse['data']['data']['mountPoint'])
       # Ghi lại nội dung vào tệp cấu hình
-      with open(CONFIG_FILE, "w") as configfile:
-        config.write(configfile)
-        print("\n📜 Nội dung file CONFIG_FILE:\n" + "="*40)
-        with open(CONFIG_FILE, "r") as configfile:
-            print(configfile.read())  # Đọc và in nội dung file cấu hình
-        print("="*40)
-      # dieu khien play #
+    #   with open(CONFIG_FILE, "w") as configfile:
+    #     config.write(configfile)
+    #     print("\n📜 Nội dung file CONFIG_FILE:\n" + "="*40)
+    #     with open(CONFIG_FILE, "r") as configfile:
+    #         print(configfile.read())  # Đọc và in nội dung file cấu hình
+    #     print("="*40)
+    #   dieu khien play #
     #   if(jsonResponse['data']['data']['statusPlay'] == 'play'):   
     #     if(jsonResponse['data']['data']['deviceId'] == id):  
     #      for proc in subprocess.Popen(['pgrep', '-f', 'darkice'], stdout=subprocess.PIPE).stdout:
