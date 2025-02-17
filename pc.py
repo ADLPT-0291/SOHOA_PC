@@ -90,17 +90,21 @@ def api_xacnhanketnoi(data):
       # Ghi lại nội dung vào tệp cấu hình
       with open(CONFIG_FILE, "w") as configfile:
         config.write(configfile)
+        print("\n📜 Nội dung file CONFIG_FILE:\n" + "="*40)
+        with open(CONFIG_FILE, "r") as configfile:
+            print(configfile.read())  # Đọc và in nội dung file cấu hình
+        print("="*40)
       # dieu khien play #
-      if(jsonResponse['data']['data']['statusPlay'] == 'play'):   
-        if(jsonResponse['data']['data']['deviceId'] == id):  
-         for proc in subprocess.Popen(['pgrep', '-f', 'darkice'], stdout=subprocess.PIPE).stdout:
-            pid = int(proc.decode())
-            os.kill(pid, signal.SIGTERM)   
-        #  start_darkice() 
-        print("start_darkice")
-      else:
-        # stop_darkice()
-        print("stop_darkice")
+    #   if(jsonResponse['data']['data']['statusPlay'] == 'play'):   
+    #     if(jsonResponse['data']['data']['deviceId'] == id):  
+    #      for proc in subprocess.Popen(['pgrep', '-f', 'darkice'], stdout=subprocess.PIPE).stdout:
+    #         pid = int(proc.decode())
+    #         os.kill(pid, signal.SIGTERM)   
+    #     #  start_darkice() 
+    #     print("start_darkice")
+    #   else:
+    #     # stop_darkice()
+    #     print("stop_darkice")
     else:
         print("⚠️ Lỗi từ server:", jsonResponse)
 #   except:
