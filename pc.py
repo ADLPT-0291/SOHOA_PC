@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import time
 import threading
-import khaibao
+# import khaibao
 import socket
 
 # Cấu hình MQTT Broker
@@ -16,16 +16,19 @@ is_connected = False
 
 
 ######## khai bao dia chi mqtt #####
-id = khaibao.id
-updatecode = khaibao.updatecode
-trangthaiketnoi = khaibao.trangthaiketnoi
-trangthaiplay = khaibao.trangthaiplay
-trangthaivolume = khaibao.trangthaivolume
-xacnhanketnoi = khaibao.xacnhanketnoi
-dieukhienvolume = khaibao.dieukhienvolume
-dieukhienplay = khaibao.dieukhienplay
-yeucauguidulieu = khaibao.yeucauguidulieu
-reset = khaibao.reset
+# id = khaibao.id
+# updatecode = khaibao.updatecode
+# trangthaiketnoi = khaibao.trangthaiketnoi
+# trangthaiplay = khaibao.trangthaiplay
+# trangthaivolume = khaibao.trangthaivolume
+# xacnhanketnoi = khaibao.xacnhanketnoi
+# dieukhienvolume = khaibao.dieukhienvolume
+# dieukhienplay = khaibao.dieukhienplay
+# yeucauguidulieu = khaibao.yeucauguidulieu
+# reset = khaibao.reset
+
+####################################
+phienban = "V1.0.0"
 
 
 ######### get dia chi ip ###################
